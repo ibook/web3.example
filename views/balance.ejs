@@ -1,0 +1,13 @@
+
+<%- include header.ejs %>
+
+<h1>Account</h1>
+<form method="get" action="/getbalance.html">
+
+    <select name="account">
+        <% accounts.forEach(function(account, index){ %>
+        <option value ="<%= account %>"><%= account %></option>
+        <% }) %>
+    </select>
+    <input type="submit" value="Submit" />
+</form>

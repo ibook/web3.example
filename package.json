@@ -1,5 +1,5 @@
 {
-  "name": "web3",
+  "name": "web3.example",
   "version": "1.0.0",
   "description": "web3.js Example",
   "main": "index.js",
@@ -8,15 +8,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ibook/web3.js.git"
+    "url": "git+https://github.com/ibook/web3.example.git"
   },
   "author": "netkiller",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ibook/web3.js/issues"
+    "url": "https://github.com/ibook/web3.example/issues"
   },
-  "homepage": "https://github.com/ibook/web3.js#readme",
+  "homepage": "https://github.com/ibook/web3.example#readme",
   "dependencies": {
-    "express": "^4.16.3"
+    "async": "^2.6.0",
+    "ejs": "^2.5.8",
+    "express": "^4.16.3",
+    "web3": "^1.0.0-beta.33"
   }
 }

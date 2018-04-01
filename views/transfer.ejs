@@ -1,0 +1,31 @@
+
+<%- include header.ejs %>
+
+<h1>Account</h1>
+<form method="get" action="/send">
+    From：
+    <select name="from">
+        <% accounts.forEach(function(account, index){ %>
+        <option value ="<%= account %>"><%= account %></option>
+        <% }) %>
+    </select>
+    <br />
+    To:
+    <select name="to">
+        <% accounts.forEach(function(account, index){ %>
+        <option value ="<%= account %>"><%= account %></option>
+        <% }) %>
+    </select>
+
+    <select name="token">
+        <option value ="ETH">ETH</option>
+        <option value ="NEO">NEO</option>
+    </select>
+
+    <br />
+    金额: <input type="text" name="amount" /> ETH
+    <br />
+    密码：<input type="password" name="password" />
+    <br />
+    <input type="submit" value="Submit" />
+</form>

@@ -1,0 +1,9 @@
+
+<%- include header.ejs %>
+
+<h1>Users</h1>
+<ul id="accounts">
+    <% accounts.forEach(function(account, index){ %>
+    <li><%= index %>, <%= account %></li>
+    <% }) %>
+</ul>
