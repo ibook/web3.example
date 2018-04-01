@@ -31,6 +31,12 @@ app.get('/account.html', function (req, res) {
   });
 })
 
+app.get('/new', function (req, res) {
+  web3.eth.personal.newAccount(req.query.password).then(function(){
+    res.redirect('/account.html');
+  });
+})
+
 app.get('/balance.html', function (req, res) {
   // web3.eth.getAccounts().then(console.log);
   // var accounts;
