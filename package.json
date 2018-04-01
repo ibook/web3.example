@@ -1,0 +1,22 @@
+{
+  "name": "web3",
+  "version": "1.0.0",
+  "description": "web3.js Example",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ibook/web3.js.git"
+  },
+  "author": "netkiller",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ibook/web3.js/issues"
+  },
+  "homepage": "https://github.com/ibook/web3.js#readme",
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
