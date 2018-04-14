@@ -6,3 +6,7 @@ web3.js Example
     npm install express web3
     npm install ejs
     npm install async
+
+## Sol
+
+    solc --bin --abi --optimize -o ./output TokenERC20.sol --overwrite 
