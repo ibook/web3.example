@@ -38,36 +38,7 @@ app.get('/new', function (req, res) {
 })
 
 app.get('/balance.html', function (req, res) {
-  // web3.eth.getAccounts().then(console.log);
-  // var accounts;
-  // var balances = new Array();
 
-  // async.waterfall([
-  //   function(callback){
-  //     web3.eth.getAccounts(function(err, acc) {
-  //       callback(null, acc);
-  //     });
-      
-  //   },
-  //   function(accounts, callback){
-  //     console.log(accounts)
-  //     accounts.forEach(function(account,index) {
-  //       web3.eth.getBalance(account).then(function(bal){
-  //         console.log(bal);
-  //         balances.push({"account": account, "balance": bal})
-  //       });
-  //     });
-  //     callback(null, balances);
-  //   },
-  //   function(bal,callback){
-  //     console.log(balances);
-  //   }
-  // ], function (err, result) {
-  //    // result now equals 'done'
-  //    console.log(result);
-     
-  //   //  res.render("balance",{"accounts":accounts}); 
-  // });
   web3.eth.getAccounts(function(err, accounts) {
     res.render("balance",{"accounts":accounts}); 
   });
@@ -95,11 +66,6 @@ app.get('/getbalance.html', function (req, res) {
   });
 })
 
-app.get('/transfer.html', function (req, res) {
-  web3.eth.getAccounts(function(err, accounts) {
-    res.render("transfer",{"accounts":accounts}); 
-  });
-})
 app.get('/transfer.html', function (req, res) {
   web3.eth.getAccounts(function(err, accounts) {
     res.render("transfer",{"accounts":accounts}); 
