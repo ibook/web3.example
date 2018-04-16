@@ -10,8 +10,8 @@ const abi = fs.readFileSync( __dirname + '/contract/output/TokenERC20.abi', 'utf
 //const coinbase = "0xB94054c174995AE2A9E7fcf6c7924635FBa8ECF7"
 //const contractAddress = "0x70682386d0dE84B1e549DC3c4305CCB2D261b2a8";
 const coinbase = "0x8dA0bB9Ee3a7d85763d1B5320D8c0f859F0438ff"
-const contractAddress = "0xbd4c04E32C980B3c9B48f0E740A43Cf0f6012689"    // Neo
-// const contractAddress = "0x83e567Ad83869435b697B0020cCc47ecb34909Ad"    // ABC
+// const contractAddress = "0xbd4c04E32C980B3c9B48f0E740A43Cf0f6012689"    // Neo
+const contractAddress = "0x4801CdA51d356B93E28b7594fCF36283F92336e3"    // BSCC
 
 var bodyParser     =        require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));

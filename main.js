@@ -11,9 +11,10 @@ fs = require('fs');
 var net = require('net');
 var Web3 = require('web3');
 var web3 = new Web3('/Users/neo/Library/Ethereum/geth.ipc', net);
-const abi = fs.readFileSync( __dirname + '/contract/TokenERC20.abi', 'utf-8');
-const coinbase = "0xB94054c174995AE2A9E7fcf6c7924635FBa8ECF7"
-const contractAddress = "0x70682386d0dE84B1e549DC3c4305CCB2D261b2a8";
+// const abi = fs.readFileSync( __dirname + '/contract/TokenERC20.abi', 'utf-8');
+const abi = fs.readFileSync( __dirname + '/contract/output/TokenERC20.abi', 'utf-8');
+const coinbase = "0x8dA0bB9Ee3a7d85763d1B5320D8c0f859F0438ff"
+const contractAddress = "0x4801CdA51d356B93E28b7594fCF36283F92336e3";
 
 console.log(web3.version)
 
@@ -67,8 +68,11 @@ app.get('/getbalance.html', function (req, res) {
 })
 
 app.get('/transfer.html', function (req, res) {
+  var contract = new web3.eth.Contract(JSON.parse(abi), contractAddress, { from: coinbase , gas: 100000});
   web3.eth.getAccounts(function(err, accounts) {
-    res.render("transfer",{"accounts":accounts}); 
+    contract.methods.name().call().then(function(symbol){
+      res.render("transfer",{"accounts":accounts, "symbol": symbol}); 
+    });
   });
 })
 
