@@ -10,11 +10,11 @@ var async = require('async');
 fs = require('fs');
 var net = require('net');
 var Web3 = require('web3');
-var web3 = new Web3('/Users/neo/Library/Ethereum/geth.ipc', net);
+var web3 = new Web3('/home/ethereum/private/geth.ipc', net);
 // const abi = fs.readFileSync( __dirname + '/contract/TokenERC20.abi', 'utf-8');
 const abi = fs.readFileSync( __dirname + '/contract/output/TokenERC20.abi', 'utf-8');
-const coinbase = "0x8dA0bB9Ee3a7d85763d1B5320D8c0f859F0438ff"
-const contractAddress = "0x4801CdA51d356B93E28b7594fCF36283F92336e3";
+const coinbase = "0x3fbb5e96c9a643450b0e76c5c2122048fc733fc6"
+const contractAddress = "0x654225e9415877d69252487a7cf9d49aeb42da88";
 
 console.log(web3.version)
 
@@ -58,7 +58,7 @@ app.get('/getbalance.html', function (req, res) {
     contract.methods.balanceOf(req.query.account).call().then(function(token){
       // console.log(contract.symbol.call());
       // contract.methods.symbol().call().then(console.log);
-      contract.methods.name().call().then(function(name){
+      contract.methods.symbol().call().then(function(name){
         res.render("showbalance",{"account":req.query.account, "balance": web3.utils.fromWei(balance, 'ether'), "token": token, "name": name}); 
       });
       
@@ -70,7 +70,7 @@ app.get('/getbalance.html', function (req, res) {
 app.get('/transfer.html', function (req, res) {
   var contract = new web3.eth.Contract(JSON.parse(abi), contractAddress, { from: coinbase , gas: 100000});
   web3.eth.getAccounts(function(err, accounts) {
-    contract.methods.name().call().then(function(symbol){
+    contract.methods.symbol().call().then(function(symbol){
       res.render("transfer",{"accounts":accounts, "symbol": symbol}); 
     });
   });
@@ -104,7 +104,7 @@ app.get('/send', function (req, res) {
   });
 })
 
-var server = app.listen(8080, function () {
+var server = app.listen(8088, function () {
  
   var host = server.address().address
   var port = server.address().port
