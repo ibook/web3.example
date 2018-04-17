@@ -16,24 +16,24 @@
 
 ### Ethereum balance
 
-    % curl "http://localhost:8000/api/balance.json?address=0x8dA0bB9Ee3a7d85763d1B5320D8c0f859F0438ff"
-    {"status":true,"code":0,"data":{"account":"0x8dA0bB9Ee3a7d85763d1B5320D8c0f859F0438ff","balance":"0"}}%
+    % curl "http://localhost:8000/api/balance.json?address=0x3FBB5e96c9a643450B0e76c5c2122048FC733fC6"
+    {"status":true,"code":0,"data":{"account":"0x3FBB5e96c9a643450B0e76c5c2122048FC733fC6","balance":"0"}}%
 
 ### Token balance
 
-    curl "http://localhost:8000/api/balance/token.json?address=0x8dA0bB9Ee3a7d85763d1B5320D8c0f859F0438ff"
-    {"status":true,"code":0,"data":{"account":"0x8dA0bB9Ee3a7d85763d1B5320D8c0f859F0438ff","balance":"100000000","name":"NEO"}}
+    curl "http://localhost:8000/api/balance/token.json?address=0x3FBB5e96c9a643450B0e76c5c2122048FC733fC6"
+    {"status":true,"code":0,"data":{"account":"0x3FBB5e96c9a643450B0e76c5c2122048FC733fC6","balance":"100000000","name":"NEO"}}
 
 ##
 
 ### ETH
 
-    % curl -XPOST -d 'from=0x8dA0bB9Ee3a7d85763d1B5320D8c0f859F0438ff&to=0xa745D295d2E35B16b2F41da48D9883CcE3c609a7&amount=100&password=12345678' http://localhost:8000/api/transfer.json
+    % curl -XPOST -d 'from=0x3FBB5e96c9a643450B0e76c5c2122048FC733fC6&to=0xC41c6579ec90dA887FbbeE99db96f139A78f7E87&amount=100&password=12345678' http://localhost:8000/api/transfer.json
 
     {"status":true,"code":0,"data":{"hash":"0x81ba2f2a79fb819c1cac544536e0a4df2d8417b64f3781299213a174a154d4de"}}% 
 
 ### Token
 
-    % curl -XPOST -d 'from=0x8dA0bB9Ee3a7d85763d1B5320D8c0f859F0438ff&to=0xa745D295d2E35B16b2F41da48D9883CcE3c609a7&amount=100&password=12345678' http://localhost:8000/api/transfer/token.json
+    % curl -XPOST -d 'from=0x3FBB5e96c9a643450B0e76c5c2122048FC733fC6&to=0xC41c6579ec90dA887FbbeE99db96f139A78f7E87&amount=100&password=12345678' http://localhost:8000/api/transfer/token.json
     
     {"status":true,"code":0,"data":{"hash":"0xd5de8c7623ece55d9857871a564cb156a2956a59f46ec0bdd201e7904dabc312"}}
