@@ -3,7 +3,8 @@
 
 ### List
 
-	GET 请求地址 http://localhost:8000/api/account/list.json
+	请求：GET
+	地址： http://localhost:8000/api/account/list.json
 
     % curl http://localhost:8000/api/account/list.json
 
@@ -23,10 +24,20 @@
 
 ### Ethereum balance
 
+	请求：GET
+	参数：address=0x3FBB5e96c9a643450B0e76c5c2122048FC733fC6
+	地址：http://localhost:8000/api/balance.json
+	演示：
+	
     % curl "http://localhost:8000/api/balance.json?address=0x3FBB5e96c9a643450B0e76c5c2122048FC733fC6"
     {"status":true,"code":0,"data":{"account":"0x3FBB5e96c9a643450B0e76c5c2122048FC733fC6","balance":"0"}}%
 
 ### Token balance
+
+	请求：GET
+	参数：address=0x3FBB5e96c9a643450B0e76c5c2122048FC733fC6
+	地址：http://localhost:8000/api/balance/token.json
+	演示：
 
     curl "http://localhost:8000/api/balance/token.json?address=0x3FBB5e96c9a643450B0e76c5c2122048FC733fC6"
     {"status":true,"code":0,"data":{"account":"0x3FBB5e96c9a643450B0e76c5c2122048FC733fC6","balance":"100000000","name":"NEO"}}
