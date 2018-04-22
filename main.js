@@ -10,11 +10,11 @@ var async = require('async');
 fs = require('fs');
 var net = require('net');
 var Web3 = require('web3');
-var web3 = new Web3('/home/ethereum/private/geth.ipc', net);
+var web3 = new Web3('/home/ethereum/mainnet/geth.ipc', net);
 // const abi = fs.readFileSync( __dirname + '/contract/TokenERC20.abi', 'utf-8');
 const abi = fs.readFileSync( __dirname + '/contract/output/TokenERC20.abi', 'utf-8');
-const coinbase = "0x3fbb5e96c9a643450b0e76c5c2122048fc733fc6"
-const contractAddress = "0x654225e9415877d69252487a7cf9d49aeb42da88";
+const coinbase = "0xaa96686a050e4916afbe9f6d8c5107062fa646dd"
+const contractAddress = "0x5F75DA091aBb25e055B91172C04371Ff4Dd563a0";
 
 console.log(web3.version)
 

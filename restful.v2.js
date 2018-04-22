@@ -45,24 +45,51 @@ router.post('/account/new.json', function (req, res) {
 });
 
 router.get('/balance.json', function(req, res) {
-    // console.log(req.query.address);
-    web3.eth.getBalance(req.query.address).then(function(balance){
-        res.json({"status": true, "code":0, "data":{"account":req.query.address, "balance": web3.utils.fromWei(balance)}}); 
-    });
+    //try{
+    //web3.eth.getBalance(req.query.address).then(function(balance){
+//	res.json({"status": true, "code":0, "data":{"account":req.query.address, "balance": web3.utils.fromWei(balance)}}); 
+// });
+//}catch(error){
+//	res.json({"status": false, "code":1, "data":{"error":error}});
+//}
+
+try {
+                web3.eth.getBalance(req.query.address, function (error, wei) {
+                    if (!error) {
+                        var balance = web3.utils.fromWei(wei, 'ether');
+			res.json({"status": true, "code":0, "data":{"account":req.query.address, "balance": balance}}); 
+                    }else{
+			console.log(error);
+			res.json({"status": false, "code":1, "data":{"error":error.message}});
+			}
+                });
+}
+catch(error){
+                res.json({"status": false, "code":1, "data":{"error":error.message}});
+            };
+
 });
+
+
+
 
 router.get('/balance/token.json', function (req, res) {
     // console.log(req.query.account);
+    try{
     var contract = new web3.eth.Contract(JSON.parse(abi), contractAddress, { from: coinbase , gas: 100000});
     contract.methods.balanceOf(req.query.address).call().then(function(balance){
         contract.methods.name().call().then(function(name){
           res.json({"status": true,"code":0, "data": {"account":req.query.address, "balance": balance, "name": name}}); 
         });  
     });
+    }catch(error){
+         res.json({"status": false, "code":1, "data":{"error":error.message}});
+    };
 })
 
 router.post('/transfer.json', function (req, res) {
     // console.log(req.query)
+    try{
     web3.eth.personal.unlockAccount(req.body.from, req.body.password).then(function(error){
         web3.eth.sendTransaction({
           from: req.body.from,
@@ -75,11 +102,16 @@ router.post('/transfer.json', function (req, res) {
                 res.json({"status":true, "code":0, "data":{"hash":result}}); 
             } else {
                 console.error(error);
+		res.json({"status":false, "code":1, "data":{"error":error.message}});
             }
         });
     });
+    }catch(error){
+         res.json({"status": false, "code":1, "data":{"error":error.message}});
+    };
 });
 router.post('/transfer/token.json', function (req, res) {
+    try{
     web3.eth.personal.unlockAccount(req.body.from, req.body.password).then(function(error){
         var contract = new web3.eth.Contract(JSON.parse(abi), contractAddress, { from: req.body.from , gas: 1000000});
         contract.methods.transfer(req.body.to, req.body.amount).send().then(function(hash){
@@ -87,9 +119,12 @@ router.post('/transfer/token.json', function (req, res) {
           res.json({"status":true, "code":0, "data":{"hash":hash.transactionHash}}); 
         });
     });
+    }catch(error){
+         res.json({"status": false, "code":1, "data":{"error":error.message}});
+    };
 });
 
 app.use('/api', router);
 
-var port = process.env.PORT || 8000;  
+var port = process.env.PORT || 8001;  
 app.listen(port, '0.0.0.0');
