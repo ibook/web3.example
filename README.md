@@ -22,4 +22,13 @@ web3.js Example
 
 ## Sol
 
-    solc --bin --abi --optimize -o ./output TokenERC20.sol --overwrite 
+    solc --bin --abi --optimize -o ./output TokenERC20.sol --overwrite
+
+## Configure
+
+    // 连接IPC地址
+    var web3 = new Web3('/home/ethereum/private/geth.ipc', net);
+    //矿工账号
+    const coinbase = "0x3fbb5e96c9a643450b0e76c5c2122048fc733fc6"
+    //代币合约地址
+    const contractAddress = "0x654225e9415877d69252487a7cf9d49aeb42da88";
