@@ -51,10 +51,17 @@ router.get('/account/mnemonic.json', function (req, res) {
 
     // console.log(address)
     // console.log(privateKey)
+
+    const bitcoin = require('bitcoinjs-lib')
+    const root = bitcoin.HDNode.fromSeedBuffer(seed)
+    const bitcoinWallet = root.derivePath("m/44'/0'/0'/0/0");
+
+    const bitcoinAddress = bitcoinWallet.getAddress();
+    const wif = bitcoinWallet.keyPair.toWIF();
+
     try{
         var account = web3.eth.accounts.privateKeyToAccount(privateKey);
-        // web3.personal.importRawKey(privateKey,'12345678');
-        res.json({"status": true, "code":0, "data":{"mnemonic":mnemonic, "account":account}});
+        res.json({"status": true, "code":0, "data":{"mnemonic":mnemonic, "ethereum":account, "bitcoin":{"address":bitcoinAddress, "privateKey":wif}}});
     }catch(error){
 	    res.json({"status": false, "code":1, "data":{"error":error.message}});
     }
