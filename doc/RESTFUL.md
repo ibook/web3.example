@@ -5,10 +5,10 @@
 
 	请求：GET
 	地址： http://localhost:8000/api/account/list.json
-
+	演示：
     % curl http://localhost:8000/api/account/list.json
 
-    {"status":true,"code":0,"data":["0xB94054c174995AE2A9E7fcf6c7924635FBa8ECF7","0xf56b81a2bcb964D2806071e9Be4289A5559BB0fA","0x997e5CA600E19447D0B82aFBf9c7F00De2B39B16","0x538b392D57d867A57eE8Eed05737cB08B4691302","0xD5EEaE04932DbC2E65B948A76A6Cdfd44323A5Dd","0x73eA28ba674a1a207cC03e262C7092a8881Feec8"]}
+    {"status":true,"code":0,"data":{"accounts":["0xB94054c174995AE2A9E7fcf6c7924635FBa8ECF7","0xf56b81a2bcb964D2806071e9Be4289A5559BB0fA","0x997e5CA600E19447D0B82aFBf9c7F00De2B39B16","0x538b392D57d867A57eE8Eed05737cB08B4691302","0xD5EEaE04932DbC2E65B948A76A6Cdfd44323A5Dd","0x73eA28ba674a1a207cC03e262C7092a8881Feec8"]}}
 
 ### New Account
 	
@@ -18,7 +18,7 @@
 	演示：
 	
     % curl -XPOST -d 'password=123456' http://localhost:8000/api/account/new.json
-    {"status":true,"code":0,"data":"0xbd38Cb8a53d1c051faF0F4E186f9ef2bBaEb308A"}
+    {"status":true,"code":0,"data":{"account":"0xbd38Cb8a53d1c051faF0F4E186f9ef2bBaEb308A"}}
 
 ## Balance
 

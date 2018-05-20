@@ -19,6 +19,7 @@ web3.js Example
     npm install express web3
     npm install ejs
     npm install async
+    npm install log4js
 
 ## Sol
 
