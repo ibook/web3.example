@@ -10,10 +10,12 @@ const ipc = '/Users/neo/Library/Ethereum/geth.ipc';
 
 // ---------- Web3 ----------
 
-fs = require('fs');
-var net = require('net');
-var Web3 = require('web3');
-var web3 = new Web3(ipc, net);
+const fs = require('fs');
+const net = require('net');
+const Web3 = require('web3');
+const web3 = new Web3(ipc, net);
+const Tx = require('ethereumjs-tx');
+const BigNumber = require('bignumber.js');
 
 const Keystore = require('./keystore');
 const keystore = new Keystore(web3);
@@ -162,7 +164,7 @@ async function transfer(from,to,am,password){
 router.post('/transfer.json', async function (req, res) {
     var amount = Number(web3.utils.toWei(req.body.amount ,'ether'));
     var message = {};
-    var value = 0;
+    var value = '';
     try{
         web3.eth.getBalance(req.body.from, Number).then(function(balance) {
             if(balance <= 0){
@@ -178,12 +180,12 @@ router.post('/transfer.json', async function (req, res) {
                     "value": 0
                 }).then(function(estimateGas){
                     var gas = estimateGas;
-                    var cost = gas * price;
+                    var cost = (gas * price);
 
                     if(amount >= value){
-                        value = balance - cost;
-                    }else if(amount + fee >= value){
-                        value = balance - cost
+                        value = BigNumber(balance).minus(cost).toString();
+                    }else if(BigNumber(amount).plus(cost).isGreaterThanOrEqualTo(value)){
+                        value = BigNumber(balance).minus(cost).toString();
                     }else{
                         value = amount;
                     }
@@ -194,7 +196,7 @@ router.post('/transfer.json', async function (req, res) {
                     var transaction = {
                         "from": req.body.from,
                         "to": req.body.to,
-                        "value": value,
+                        "value": Number(value),
                         "gas": gas
                     };
 
@@ -313,17 +315,93 @@ router.get('/account/mnemonic.json', function (req, res) {
 });
 
 router.post('/transfer/sign.json', function (req, res) {
+    var amount = Number(web3.utils.toWei(req.body.amount ,'ether'));
+    var message = {};
+    var value = 0;
     try{
-        var txbash = hdWallet.SignedTransaction(req.body.from, req.body.to, req.body.value, req.body.key);
-        var message = {"status":true, "code":0, "data":{"txhash":txhash}};
-        logger.info(message);
-        res.json(message); 
+        
+        web3.eth.getGasPrice().then(function(gasPrice){
+            var price = Number(gasPrice);
+            web3.eth.estimateGas({
+                "from": req.body.from,
+                "to": req.body.to,
+                "value": BigNumber(amount)
+            }).then(function(estimateGas){
+                var gas = estimateGas;
+                web3.eth.getBalance(req.body.from, Number).then(function(balance) {
+                    var cost = (gas * price);
+                    if(balance <= 0 || balance < cost){
+                        message = {"status": false, "code":1, "data":{"error":"balance = 0 or balance <  gas * price"}};
+                        logger.error(message);
+                        res.json(message);
+                        return;
+                    }else{
+                        message = {"account": req.body.from, "balance": balance};
+                        console.log(message);
+                        logger.info(message);
+                    }
+
+                    if(amount >= balance){
+                        value = BigNumber(balance).minus(cost).toNumber();
+                    }else if(BigNumber(amount).plus(cost).isGreaterThanOrEqualTo(balance)){
+                        value = BigNumber(balance).minus(cost).toNumber();
+                    }else{
+                        value = amount;
+                    }
+                    
+                    console.log(price);
+                    console.log(gas);
+                    console.log(cost);
+                    console.log(balance);
+                    console.log(amount);
+                    console.log(value);
+
+                    web3.eth.getTransactionCount(req.body.from).then(function(nonce){
+ 
+                        var rawTransaction = {
+                            "from": req.body.from,
+                            "nonce": web3.utils.toHex(nonce),
+                            "gas": web3.utils.toHex(gas),
+                            "gasPrice": web3.utils.toHex(price),
+                            // "gasLimit": this.web3.utils.toHex(gasLimit.gasLimit),
+                            "to": req.body.to,
+                            "value": value
+                        };
+
+                        var privateKey = new Buffer.from(req.body.key, 'hex');
+                        var tx = new Tx(rawTransaction);
+                        tx.sign(privateKey);
+                        var serializedTx = tx.serialize();
+    
+                        web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex')).on('receipt', function(txhash){
+                            message = {"status":true, "code":0, "data":{"txhash":txhash}};
+                            logger.info(message);
+                            res.json(message); 
+                        }); 
+
+                    });
+
+                });
+            });
+        });
     }catch(error){
         message = {"status": false, "code":1, "data":{"error":error.message}};
         logger.error(message);
         res.json(message);
     };
 });
+// router.post('/transfer/sign.json', function (req, res) {
+//     try{
+//         var txhash = hdWallet.SignedTransaction(req.body.from, req.body.to, req.body.amount, req.body.key);
+//         var message = {"status":true, "code":0, "data":{"txhash":txhash}};
+//         logger.info(message);
+//         res.json(message); 
+//     }catch(error){
+//         message = {"status": false, "code":1, "data":{"error":error.message}};
+//         logger.error(message);
+//         res.json(message);
+//     };
+// });
 
 app.use('/api', router);
 

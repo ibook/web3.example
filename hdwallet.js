@@ -47,10 +47,10 @@ module.exports = class HdWallet {
         }else if(amount + cost >= balance){
             amount = balance - cost
         }
-        // console.log(gas)
-        // console.log(balance)
-        // console.log(amount)
-        // console.log(rawTransaction)
+        console.log(gas)
+        console.log(balance)
+        console.log(amount)
+        console.log(rawTransaction)
         
         var privateKey = new Buffer.from(key, 'hex');
         var tx = new Tx(rawTransaction);

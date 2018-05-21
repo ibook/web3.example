@@ -18,6 +18,8 @@
   "homepage": "https://github.com/ibook/web3.example#readme",
   "dependencies": {
     "async": "^2.6.0",
+    "bignumber": "^1.1.0",
+    "bignumber.js": "^7.1.0",
     "bip39": "^2.5.0",
     "bitcoinjs-lib": "^3.3.2",
     "ejs": "^2.5.8",

@@ -32,7 +32,9 @@
 
 	curl "http://localhost:8000/api/balance.json?address=0xfbFe02E82d22737eBBBaDc1E07a47F6e3F226343"
 
-## Transfer ETH
+## Transfer
+
+### ETH
 
 	请求：POST
 	参数：
@@ -49,6 +51,20 @@
 
     {"status":true,"code":0,"data":{"hash":"0x81ba2f2a79fb819c1cac544536e0a4df2d8417b64f3781299213a174a154d4de"}}% 
 
+## Sign Transaction
+
+	请求：POST
+	参数：
+		from=0xfbFe02E82d22737eBBBaDc1E07a47F6e3F226343
+		to=0xc28Ec50bFeD8E4B88780e910a802dA8Fa347CCad
+		amount=1000
+		key=1b6e3fa7b65e324ee1e6be963e075c16397a4b3bc07414b30f4eccfdcc9b2601
+	地址：
+		http://localhost:8000/api/transfer/sign.json
+		
+	演示：
+
+	% curl -XPOST -d 'from=0x7cB22cb3d8a58ade32f3BfC3E6a4dEd1efAEe080&to=0xfbFe02E82d22737eBBBaDc1E07a47F6e3F226343&amount=5&key=1b6e3fa7b65e324ee1e6be963e075c16397a4b3bc07414b30f4eccfdcc9b2601' http://localhost:8000/api/transfer/sign.json
 ## Token
 
 ### Token balance
@@ -79,3 +95,7 @@
     % curl -XPOST -d 'from=0x3FBB5e96c9a643450B0e76c5c2122048FC733fC6&to=0xC41c6579ec90dA887FbbeE99db96f139A78f7E87&amount=100&password=12345678' http://localhost:8000/api/transfer/token.json
     
     {"status":true,"code":0,"data":{"hash":"0xd5de8c7623ece55d9857871a564cb156a2956a59f46ec0bdd201e7904dabc312"}}
+
+
+### ETH
+
