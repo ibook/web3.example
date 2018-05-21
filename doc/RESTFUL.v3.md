@@ -59,11 +59,8 @@
 	地址：http://localhost:8000/api/balance/token.json
 	演示：
 
-    neo@MacBook-Pro ~/ethereum/web3.example % curl "http://localhost:8000/api/balance/token.json?address=0xa745D295d2E35B16b2F41da48D9883CcE3c609a7&symbol=NEO"
-    {"status":true,"code":0,"data":{"account":"0xa745D295d2E35B16b2F41da48D9883CcE3c609a7","balance":"100","symbol":"NEO"}}
-
-### Token get all of balance.
-
+    neo@MacBook-Pro ~/ethereum/web3.example % curl "http://localhost:8000/api/balance/token.json?address=0xa745D295d2E35B16b2F41da48D9883CcE3c609a7&symbol=ADC"
+	{"status":true,"code":0,"data":{"account":"0xa745D295d2E35B16b2F41da48D9883CcE3c609a7","balance":"100.000000000000000000","symbol":"ADC","decimals":"18"}}
 
 
 ### Token transfer
