@@ -1,13 +1,11 @@
 
 // --------------------------------------------------
+const config = require('./config.js');
+console.log(config.contracts);
+const coinbase = config.coinbase;
+const contracts = config.contracts;
 // const ipc = '/home/ethereum/mainnet/geth.ipc';
 const ipc = '/Users/neo/Library/Ethereum/geth.ipc';
-const coinbase = "0x3fbb5e96c9a643450b0e76c5c2122048fc733fc6";
-const contracts = {
-    'EOS':'0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0',
-    'FBC':'0x0c6df9bb12b32aeec1e117936457ed83ad8a1c70',
-    'USDT':''
-};
 // --------------------------------------------------
 
 // ---------- Web3 ----------
@@ -16,6 +14,8 @@ fs = require('fs');
 var net = require('net');
 var Web3 = require('web3');
 var web3 = new Web3(ipc, net);
+
+
 
 const HdWallet = require('./hdwallet');
 const hdWallet = new HdWallet(web3);
@@ -253,7 +253,7 @@ router.get('/account/mnemonic.json', function (req, res) {
 
 router.post('/transfer/sign.json', function (req, res) {
     try{
-        var txbash = SignedTransaction(req.body.from, req.body.to, req.body.value, req.body.key);
+        var txbash = hdWallet.SignedTransaction(req.body.from, req.body.to, req.body.value, req.body.key);
         var message = {"status":true, "code":0, "data":{"txhash":txhash}};
         logger.info(message);
         res.json(message); 
