@@ -16,7 +16,7 @@ web3.js Example
 
 ### Ethereum User
 
-    npm install express web3
+    npm install express web3 ethereumjs-tx
     npm install ejs
     npm install async
     npm install log4js

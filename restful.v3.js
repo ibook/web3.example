@@ -17,6 +17,12 @@ var net = require('net');
 var Web3 = require('web3');
 var web3 = new Web3(ipc, net);
 
+const HdWallet = require('./hdwallet');
+const hdWallet = new HdWallet(web3);
+//hdWallet.SignedTransaction2("1b6e3fa7b65e324ee1e6be963e075c16397a4b3bc07414b30f4eccfdcc9b2601","0xfbFe02E82d22737eBBBaDc1E07a47F6e3F226343","10");
+hdWallet.SignedTransaction("0x7cB22cb3d8a58ade32f3BfC3E6a4dEd1efAEe080","0xfbFe02E82d22737eBBBaDc1E07a47F6e3F226343","7.84","1b6e3fa7b65e324ee1e6be963e075c16397a4b3bc07414b30f4eccfdcc9b2601");
+// console.log(hdWallet.mnemonic());
+// console.log(`The mnemonic is ${hdWallet.mnemonic().toString()}`);
 // ---------- express ----------
 
 var express    = require('express');
@@ -50,37 +56,6 @@ const logger = log4js.getLogger('ethereum');
 
 router.get('/', function(req, res) {
     res.json({ "status": true, message: 'welcome to ethereum api!' });   
-});
-
-router.get('/account/mnemonic.json', function (req, res) {
-    var bip39 = require('bip39');
-    var hdkey = require('ethereumjs-wallet/hdkey');
-    var util = require('ethereumjs-util');
-
-    var mnemonic = bip39.generateMnemonic();
-    var seed = bip39.mnemonicToSeed(mnemonic);      
-    var hdwallet = hdkey.fromMasterSeed(seed);  
-    var wallet = hdwallet.derivePath("m/44'/60'/0'/0/0").getWallet();
-    // var address = util.pubToAddress(wallet.getAddress().toString('hex'), true);
-    address = util.toChecksumAddress(wallet.getAddress().toString('hex'));
-    const privateKey = util.toChecksumAddress(wallet.getPrivateKey().toString('hex'));
-
-    // console.log(address)
-    // console.log(privateKey)
-
-    const bitcoin = require('bitcoinjs-lib')
-    const root = bitcoin.HDNode.fromSeedBuffer(seed)
-    const bitcoinWallet = root.derivePath("m/44'/0'/0'/0/0");
-
-    const bitcoinAddress = bitcoinWallet.getAddress();
-    const wif = bitcoinWallet.keyPair.toWIF();
-
-    try{
-        var account = web3.eth.accounts.privateKeyToAccount(privateKey);
-        res.json({"status": true, "code":0, "data":{"mnemonic":mnemonic, "ethereum":account, "bitcoin":{"address":bitcoinAddress, "privateKey":wif}}});
-    }catch(error){
-	    res.json({"status": false, "code":1, "data":{"error":error.message}});
-    }
 });
 
 router.get('/account/list.json', function(req, res) {
@@ -184,70 +159,6 @@ router.post('/transfer.json', function (req, res) {
     };
 });
 
-async function SignedTransaction(from, to, value, key){
-
-    var amount = web3.utils.toWei(value ,'ether');
-    var nonce = await web3.eth.getTransactionCount(from);
-    var gasLimit = web3.eth.getBlock("pending").gasLimit;
-    var gasPrice = await web3.eth.getGasPrice();
-
-    var rawTransaction = {
-        "from": from,
-        "nonce":  web3.utils.toHex(count),
-        "gasPrice": web3.utils.toHex(gasPrice),
-        "gasLimit": web3.utils.toHex(gasLimit),
-        "to": to,
-        "value": amount
-    };
-
-    web3.eth.getBalance(from, function (error, balance) {
-        var estimateGas = getEstimateGas(transaction);
-        var fee = getFee(estimateGas);
-        if(amount >= balance){
-            amount = balance - fee;
-        }else if(amount + fee >= balance){
-            amount = balance - fee
-        }
-    });
-
-    var privateKey = new Buffer(key, 'hex');
-    var tx = new Tx(rawTransaction);
-    tx.sign(privateKey);
-    var serializedTx = tx.serialize();
-
-    web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex')).on('receipt', function(txhash){
-
-    });    
-
-}
-
-async function SignedTransaction2(from, to, value, key){
-    var account = web3.eth.accounts.privateKeyToAccount(privateKey);
-    web3.eth.accounts.signTransaction({
-        from: account.address,
-        to: "0x0013a861865d74b13ba94713d4e84d97c57e7081",
-        gas: "3000000",
-        value: '100000000000000000',
-        gasPrice: '0x09184e72a000',
-        data: "0x00"
-    }, account.privateKey).then(function(result) {
-        console.log("Results: ", result)
-        web3.eth.sendSignedTransaction(result.rawTransaction).on('receipt', console.log);
-    })	
-}
-router.post('/transfer/sign.json', function (req, res) {
-    try{
-        var txbash = SignedTransaction(req.body.from, req.body.to, req.body.value, req.body.key);
-        var message = {"status":true, "code":0, "data":{"txhash":txhash}};
-        logger.info(message);
-        res.json(message); 
-    }catch(error){
-        message = {"status": false, "code":1, "data":{"error":error.message}};
-        logger.error(message);
-        res.json(message);
-    };
-});
-
 router.get('/balance/token.json', function (req, res) {
     try{
         const abi = fs.readFileSync( __dirname + '/abi/'+req.query.symbol+'.abi', 'utf-8');
@@ -306,7 +217,57 @@ router.post('/transfer/token.json', function (req, res) {
     };
 });
 
-app.use('/api', router);
+
+// ---------- Mnemonic ----------
+
+router.get('/account/mnemonic.json', function (req, res) {
+    var bip39 = require('bip39');
+    var hdkey = require('ethereumjs-wallet/hdkey');
+    var util = require('ethereumjs-util');
+
+    var mnemonic = bip39.generateMnemonic();
+    var seed = bip39.mnemonicToSeed(mnemonic);      
+    var hdwallet = hdkey.fromMasterSeed(seed);  
+    var wallet = hdwallet.derivePath("m/44'/60'/0'/0/0").getWallet();
+    // var address = util.pubToAddress(wallet.getAddress().toString('hex'), true);
+    address = util.toChecksumAddress(wallet.getAddress().toString('hex'));
+    const privateKey = util.toChecksumAddress(wallet.getPrivateKey().toString('hex'));
+
+    // console.log(address)
+    // console.log(privateKey)
+
+    const bitcoin = require('bitcoinjs-lib')
+    const root = bitcoin.HDNode.fromSeedBuffer(seed)
+    const bitcoinWallet = root.derivePath("m/44'/0'/0'/0/0");
+
+    const bitcoinAddress = bitcoinWallet.getAddress();
+    const wif = bitcoinWallet.keyPair.toWIF();
+
+    try{
+        var account = web3.eth.accounts.privateKeyToAccount(privateKey);
+        res.json({"status": true, "code":0, "data":{"mnemonic":mnemonic, "ethereum":account, "bitcoin":{"address":bitcoinAddress, "privateKey":wif}}});
+    }catch(error){
+	    res.json({"status": false, "code":1, "data":{"error":error.message}});
+    }
+});
+
+router.post('/transfer/sign.json', function (req, res) {
+    try{
+        var txbash = SignedTransaction(req.body.from, req.body.to, req.body.value, req.body.key);
+        var message = {"status":true, "code":0, "data":{"txhash":txhash}};
+        logger.info(message);
+        res.json(message); 
+    }catch(error){
+        message = {"status": false, "code":1, "data":{"error":error.message}};
+        logger.error(message);
+        res.json(message);
+    };
+});
+
+app.use('/keystore', router);
+
+
+
 
 var port = process.env.PORT || 8000;  
 app.listen(port, '0.0.0.0');
