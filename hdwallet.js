@@ -3,7 +3,7 @@ module.exports = class HdWallet {
       this.web3 = web3;
     }
   
-    mnemonic() {
+    async mnemonic() {
         const bip39 = require('bip39');
         const hdkey = require('ethereumjs-wallet/hdkey');
         const util = require('ethereumjs-util');
