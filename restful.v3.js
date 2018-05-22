@@ -260,13 +260,20 @@ router.post('/transfer/token.json', function (req, res) {
         web3.eth.personal.unlockAccount(req.body.from, req.body.password).then(function(error){
             const abi = fs.readFileSync( __dirname + '/abi/'+req.body.symbol+'.abi', 'utf-8');
             var contract = new web3.eth.Contract(JSON.parse(abi), contracts[req.body.symbol], { from: req.body.from , gas: 1000000});
-            contract.methods.transfer(req.body.to, req.body.amount).send().then(function(tx){
-                console.log(hash)
-                res.json({"status":true, "code":0, "data":{"txhash":tx}}); 
+            contract.methods.decimals().call().then(function(decimals){
+                const amount = new BigNumber(req.body.amount).toFixed(Number(decimals)).toString().replace(".","");
+                contract.methods.transfer(req.body.to, amount).send().then(function(txhash){
+                    console.log(txhash)
+                    var message = {"status":true, "code":0, "data":{"txhash":txhash}};
+                    logger.info(message);
+                    res.json(message);
+                });
             });
         });
     }catch(error){
-         res.json({"status": false, "code":1, "data":{"error":error.message}});
+        var message = {"status": false, "code":1, "data":{"error":error.message}};
+        logger.error(message);
+        res.json(message);
     };
 });
 
@@ -424,13 +431,13 @@ router.post('/transfer/token/sign.json', function (req, res) {
                                 "value": "0x0",
                                 "data": contract.methods.transfer(to, amount).encodeABI()
                             };
-                            console.log(`balance: ${balance}`);
-                            console.log(price);
-                            console.log(gas);
-                            console.log(amount);
-                            console.log(rawTransaction);
-                            // logger.debug(`/transfer/sign.json - gas: ${gas}, price: ${price}, cost: ${cost}, balance: ${balance}, amount: ${amount}, value: ${value}`);
-                            console.log(rawTransaction);
+                            // console.log(`balance: ${balance}`);
+                            // console.log(price);
+                            // console.log(gas);
+                            // console.log(amount);
+                            // console.log(rawTransaction);
+                            logger.debug(`/transfer/token/sign.json - gas: ${gas}, price: ${price}, cost: ${gas * price}, balance: ${balance}, amount: ${amount}, value: ${value}`);
+                            // console.log(rawTransaction);
                             
                             var privateKey = new Buffer.from(key, 'hex');
                             var tx = new Tx(rawTransaction);
