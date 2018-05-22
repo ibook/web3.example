@@ -115,52 +115,37 @@ router.get('/balance.json', function(req, res) {
 
 });
 
-async function transfer(from,to,am,password){
-    var amount = Number(web3.utils.toWei(am ,'ether'));
+router.get('/balance/spending.json', function(req, res) {
     var message = {};
-    var value = 0;
-    var gas = 0;
-    try{
-        var transaction = {
-            "from": from,
-            "to": to,
-            "value": value,
-            "gas":gas
-        };
-        console.log(transaction);
-        console.log(amount);
-        var balance = await web3.eth.getBalance(from, Number)
-        var estimateGas = await web3.eth.estimateGas(transaction);
-        gas = estimateGas;
-        var gasPrice = await web3.eth.getGasPrice();
-        var cost = gasPrice * estimateGas;
+    try {
+        
+        web3.eth.getBalance(req.query.address).then(function(wei) {
 
-        console.log(estimateGas);
-        if(amount >= value){
-            value = balance - cost;
-        }else if(amount + fee >= value){
-            value = balance - cost
-        }else{
-            value = amount;
-        }
-            
-        console.log(balance);
-        console.log(value);
-        console.log(cost);
-
-        await web3.eth.personal.unlockAccount(from, password);
-        var txhash = await web3.eth.sendTransaction(transaction);
-        message = {"status":true, "code":0, "data":{"txhash":tx}};
-        logger.info(message);
-        return (message); 
- 
-   
-    }catch(error){
+            web3.eth.getGasPrice().then(function(gasPrice){
+                var price = gasPrice;
+                web3.eth.estimateGas({
+                    "from": req.query.address,
+                    "to": coinbase,
+                    "value": wei
+                }).then(function(estimateGas){
+                    var gas = estimateGas;
+                    var cost = (gas * price);
+                    var balance = web3.utils.fromWei(BigNumber(wei).minus(cost).toString(), 'ether');
+                    message = {"status": true, "code":0, "data":{"account":req.query.address, "balance": balance, "wei": BigNumber(wei).minus(cost), "price": price, "gas": gas, "cost": cost }}; 
+                    logger.info(message);
+                    res.json(message); 
+                });
+            });
+        });
+    }
+    catch(error){
         message = {"status": false, "code":1, "data":{"error":error.message}};
         logger.error(message);
-        return(message);
+        res.json(message);
     };
-}
+
+});
+
 router.post('/transfer.json', async function (req, res) {
     var amount = web3.utils.toWei(req.body.amount ,'ether');
     var message = {};
@@ -235,9 +220,13 @@ router.get('/balance/token.json', function (req, res) {
         var contract = new web3.eth.Contract(JSON.parse(abi), contracts[req.query.symbol], { from: coinbase , gas: 100000});
         contract.methods.balanceOf(req.query.address).call().then(function(wei){
             contract.methods.decimals().call().then(function(decimals){
-                var dot = ".";
-                var position = decimals * -1;
-                var balance = [wei.slice(0, position), dot, wei.slice(position)].join('');
+                if(wei > 0){
+                    var dot = ".";
+                    var position = decimals * -1;
+                    var balance = [wei.slice(0, position), dot, wei.slice(position)].join('');
+                }else{
+                    balance = wei;
+                }
                 var message = {"status": true,"code":0, "data": {"account":req.query.address, "balance": balance, "symbol": req.query.symbol, "decimals": decimals}};
                 logger.info(message);
                 res.json(message); 
@@ -269,8 +258,8 @@ router.get('/balance/token/all.json', function (req, res) {
 router.post('/transfer/token.json', function (req, res) {
     try{
         web3.eth.personal.unlockAccount(req.body.from, req.body.password).then(function(error){
-            const abi = fs.readFileSync( __dirname + '/abi/'+req.query.symbol+'.abi', 'utf-8');
-            var contract = new web3.eth.Contract(JSON.parse(abi), contracts[req.query.symbol], { from: req.body.from , gas: 1000000});
+            const abi = fs.readFileSync( __dirname + '/abi/'+req.body.symbol+'.abi', 'utf-8');
+            var contract = new web3.eth.Contract(JSON.parse(abi), contracts[req.body.symbol], { from: req.body.from , gas: 1000000});
             contract.methods.transfer(req.body.to, req.body.amount).send().then(function(tx){
                 console.log(hash)
                 res.json({"status":true, "code":0, "data":{"txhash":tx}}); 
@@ -350,12 +339,14 @@ router.post('/transfer/sign.json', function (req, res) {
                         value = web3.utils.toHex(amount);
                     }
                     
-                    console.log(price);
-                    console.log(gas);
-                    console.log(cost);
-                    console.log(balance);
-                    console.log(amount);
-                    console.log(value);
+                    // console.log(price);
+                    // console.log(gas);
+                    // console.log(cost);
+                    // console.log(balance);
+                    // console.log(amount);
+                    // console.log(value);
+
+                    logger.debug(`/transfer/sign.json - gas: ${gas}, price: ${price}, cost: ${cost}, balance: ${balance}, amount: ${amount}, value: ${value}`);
 
                     web3.eth.getTransactionCount(req.body.from).then(function(nonce){
  
@@ -391,18 +382,78 @@ router.post('/transfer/sign.json', function (req, res) {
         res.json(message);
     };
 });
-// router.post('/transfer/sign.json', function (req, res) {
-//     try{
-//         var txhash = hdWallet.SignedTransaction(req.body.from, req.body.to, req.body.amount, req.body.key);
-//         var message = {"status":true, "code":0, "data":{"txhash":txhash}};
-//         logger.info(message);
-//         res.json(message); 
-//     }catch(error){
-//         message = {"status": false, "code":1, "data":{"error":error.message}};
-//         logger.error(message);
-//         res.json(message);
-//     };
-// });
+router.post('/transfer/token/sign.json', function (req, res) {
+    const from    = req.body.from;
+    const to      = req.body.to;
+    
+    const symbol  = req.body.symbol;
+    const key     = req.body.key;
+
+    var message = {};
+
+    try{
+        const abi = fs.readFileSync( __dirname + '/abi/'+symbol+'.abi', 'utf-8');
+        const contractAddress = contracts[symbol];
+        const contract = new web3.eth.Contract(JSON.parse(abi), contractAddress, { "from": from});
+
+        contract.methods.balanceOf(from).call().then(function(balance){
+
+            contract.methods.decimals().call().then(function(decimals){
+                const amount = new BigNumber(req.body.amount).toFixed(Number(decimals)).toString().replace(".","");
+
+                if(Number(amount) > Number(balance)){
+                    message = {"status": false, "code":1, "data":{"error":"balance = " + balance}};
+                    logger.error(message);
+                    res.json(message);
+                    return;
+                }
+            
+                web3.eth.getGasPrice().then(function(gasPrice){
+                    var price = Number(gasPrice);
+
+                    web3.eth.getTransactionCount(from).then(function(nonce){
+
+                        contract.methods.transfer(from, amount).estimateGas().then(function(gas){
+                            var rawTransaction = {
+                                "nonce": web3.utils.toHex(nonce),
+                                "from": from,
+                                "to": contractAddress,
+                                "gas": web3.utils.toHex(gas),
+                                "gasPrice": web3.utils.toHex(price),
+                                // "gasLimit": this.web3.utils.toHex(gasLimit.gasLimit),
+                                "value": "0x0",
+                                "data": contract.methods.transfer(to, amount).encodeABI()
+                            };
+                            console.log(`balance: ${balance}`);
+                            console.log(price);
+                            console.log(gas);
+                            console.log(amount);
+                            console.log(rawTransaction);
+                            // logger.debug(`/transfer/sign.json - gas: ${gas}, price: ${price}, cost: ${cost}, balance: ${balance}, amount: ${amount}, value: ${value}`);
+                            console.log(rawTransaction);
+                            
+                            var privateKey = new Buffer.from(key, 'hex');
+                            var tx = new Tx(rawTransaction);
+                            tx.sign(privateKey);
+                            var serializedTx = tx.serialize();
+            
+                            web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex')).on('receipt', function(txhash){
+                                message = {"status":true, "code":0, "data":{"txhash":txhash}};
+                                logger.info(message);
+                                res.json(message); 
+                            }); 
+                        });
+                    });
+                });
+            });
+        });
+    }catch(error){
+        message = {"status": false, "code":1, "data":{"error":error.message}};
+        logger.error(message);
+        res.json(message);
+    };
+    
+});
 
 app.use('/api', router);
 

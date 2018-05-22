@@ -52,4 +52,50 @@ module.exports = class Keystore {
         var cost = gasPrice * estimateGas;
         return cost;
     }
+    async transfer(from,to,am,password){
+        var amount = Number(web3.utils.toWei(am ,'ether'));
+        var message = {};
+        var value = 0;
+        var gas = 0;
+        try{
+            var transaction = {
+                "from": from,
+                "to": to,
+                "value": value,
+                "gas":gas
+            };
+            console.log(transaction);
+            console.log(amount);
+            var balance = await web3.eth.getBalance(from, Number)
+            var estimateGas = await web3.eth.estimateGas(transaction);
+            gas = estimateGas;
+            var gasPrice = await web3.eth.getGasPrice();
+            var cost = gasPrice * estimateGas;
+    
+            console.log(estimateGas);
+            if(amount >= value){
+                value = balance - cost;
+            }else if(amount + fee >= value){
+                value = balance - cost
+            }else{
+                value = amount;
+            }
+                
+            console.log(balance);
+            console.log(value);
+            console.log(cost);
+    
+            await web3.eth.personal.unlockAccount(from, password);
+            var txhash = await web3.eth.sendTransaction(transaction);
+            message = {"status":true, "code":0, "data":{"txhash":tx}};
+            logger.info(message);
+            return (message); 
+     
+       
+        }catch(error){
+            message = {"status": false, "code":1, "data":{"error":error.message}};
+            logger.error(message);
+            return(message);
+        };
+    }
 }
