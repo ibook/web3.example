@@ -51,6 +51,8 @@
 
     {"status":true,"code":0,"data":{"hash":"0x81ba2f2a79fb819c1cac544536e0a4df2d8417b64f3781299213a174a154d4de"}}% 
 
+	curl -XPOST -d 'from=0x8dA0bB9Ee3a7d85763d1B5320D8c0f859F0438ff&to=0xc28Ec50bFeD8E4B88780e910a802dA8Fa347CCad&amount=1000000000&password=12345678' http://localhost:8000/api/transfer.json
+
 ## Sign Transaction
 
 	请求：POST

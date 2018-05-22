@@ -162,7 +162,7 @@ async function transfer(from,to,am,password){
     };
 }
 router.post('/transfer.json', async function (req, res) {
-    var amount = Number(web3.utils.toWei(req.body.amount ,'ether'));
+    var amount = web3.utils.toWei(req.body.amount ,'ether');
     var message = {};
     var value = '';
     try{
@@ -182,21 +182,22 @@ router.post('/transfer.json', async function (req, res) {
                     var gas = estimateGas;
                     var cost = (gas * price);
 
-                    if(amount >= value){
-                        value = BigNumber(balance).minus(cost).toString();
+                    if(Number(amount) >= balance){
+                        value = web3.utils.toHex(BigNumber(balance).minus(cost));
                     }else if(BigNumber(amount).plus(cost).isGreaterThanOrEqualTo(value)){
-                        value = BigNumber(balance).minus(cost).toString();
+                        value = web3.utils.toHex(BigNumber(balance).minus(cost));
                     }else{
-                        value = amount;
+                        value = web3.utils.toHex(amount);
                     }
                     
                     // console.log(balance);
                     // console.log(value);
                     // console.log(cost);
+
                     var transaction = {
                         "from": req.body.from,
                         "to": req.body.to,
-                        "value": Number(value),
+                        "value": value,
                         "gas": gas
                     };
 
@@ -315,7 +316,7 @@ router.get('/account/mnemonic.json', function (req, res) {
 });
 
 router.post('/transfer/sign.json', function (req, res) {
-    var amount = Number(web3.utils.toWei(req.body.amount ,'ether'));
+    var amount = web3.utils.toWei(req.body.amount ,'ether');
     var message = {};
     var value = 0;
     try{
@@ -341,12 +342,12 @@ router.post('/transfer/sign.json', function (req, res) {
                         logger.info(message);
                     }
 
-                    if(amount >= balance){
-                        value = BigNumber(balance).minus(cost).toNumber();
+                    if(Number(amount) >= balance){
+                        value = web3.utils.toHex(BigNumber(balance).minus(cost));
                     }else if(BigNumber(amount).plus(cost).isGreaterThanOrEqualTo(balance)){
-                        value = BigNumber(balance).minus(cost).toNumber();
+                        value = web3.utils.toHex(BigNumber(balance).minus(cost));
                     }else{
-                        value = amount;
+                        value = web3.utils.toHex(amount);
                     }
                     
                     console.log(price);
@@ -365,7 +366,7 @@ router.post('/transfer/sign.json', function (req, res) {
                             "gasPrice": web3.utils.toHex(price),
                             // "gasLimit": this.web3.utils.toHex(gasLimit.gasLimit),
                             "to": req.body.to,
-                            "value": value
+                            "value": web3.utils.toHex(value)
                         };
 
                         var privateKey = new Buffer.from(req.body.key, 'hex');
